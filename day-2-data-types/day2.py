@@ -103,3 +103,7 @@ print(f"Your score is {score}")
 # months = years_left * 12
 
 # print(f"You have {days} days, {weeks} weeks, and {months} months left.")
+
+# enforce two decimal points
+a = 23.3
+print("{:.2f}".format(a))
