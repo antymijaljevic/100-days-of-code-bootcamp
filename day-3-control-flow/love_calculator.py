@@ -35,3 +35,15 @@ elif result >= 40 and result <= 50:
     print(f"Your score is **{result}**, you are alright together.")
 else:
     print(f"Your score is **{result}**.")
+
+
+
+# name = "Lovre".lower()
+
+# letters = ["L", "O", "V", "E"]
+# sum = 0
+
+# for letter in letters:
+#     sum += name.count(letter.lower())
+
+# print("result", sum)
