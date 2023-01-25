@@ -86,7 +86,7 @@
 
 
  
-year = 2100
+# year = 2100
  
 # if (year%4 == 0 and year%100 != 0) or (year%400 == 0) :
 #     print(year, "is a leap year.")
@@ -94,15 +94,50 @@ year = 2100
 #     print(year, "is not a leap year.")
 
 
-if year % 4 == 0:
-    if year % 100 == 0:
-        if year % 400 == 0:
-            print("Leap year")
-        else:
-            print("Not leap year")
-    else:
-        print("Leap year")
-else:
-    print("Not leap year")
+# if year % 4 == 0:
+#     if year % 100 == 0:
+#         if year % 400 == 0:
+#             print("Leap year")
+#         else:
+#             print("Not leap year")
+#     else:
+#         print("Leap year")
+# else:
+#     print("Not leap year")
     
 # https://cognism.udemy.com/course/100-days-of-code/learn/lecture/17965120#overview
+
+
+# # 🚨 Don't change the code below 👇
+# print("Welcome to Python Pizza Deliveries!")
+# size = input("What size pizza do you want? S, M, or L ")
+# add_pepperoni = input("Do you want pepperoni? Y or N ")
+# extra_cheese = input("Do you want extra cheese? Y or N ")
+# # 🚨 Don't change the code above 👆
+
+# #Write your code below this line 👇
+# bill = 0
+
+# if size == "S":
+#     bill += 15
+# elif size == "M":
+#     bill += 20
+# elif size == "L":
+#     bill +=25
+
+# if add_pepperoni == "Y":
+#     if size == "S":
+#         bill +=2
+#     else:
+#         bill +=3
+
+# if extra_cheese == "Y":
+#     bill += 1
+
+# print(f"Your final bill is: ${bill}.")
+
+# logical operators
+ 
+
+
+
