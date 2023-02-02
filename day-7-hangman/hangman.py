@@ -1,28 +1,48 @@
+from os import system, name
 import random
+from art import stages, logo
+from words import word_list
 
-# Randomly choose a word from the word_list and assign it to a variable called chosen_word
-word_list = ["aardvark", "baboon", "camel"]
+def clear_terminal():
+    if name == 'nt':
+        system('cls')
+    else:
+        system('clear')
+
+clear_terminal()
 chosen_word = random.choice(word_list)
+word_length = len(chosen_word)
+lives = 6
+
+print(logo)
 print(f'Pssst, the solution is {chosen_word}.')
 
-# Create an empty List called display.
-word_length = len(chosen_word)
 display = ['_' for _ in range(word_length)]
-print(display)
 
-# Ask the user to guess a letter and assign their answer to a variable called guess. Make guess lowercase.
-guess = input("Guess a letter! Which one is it? ").lower()
+end_of_game = False
 
-# Check if the letter the user guessed (guess) is one of the letters in the chosen_word.
-# for num, letter in enumerate(chosen_word):
-#     if letter == guess:
-#         # If the letter at that position matches 'guess' then reveal that letter in the display at that position.
-#         display[num] = guess
+while not end_of_game:
+    guess = input("Guess a letter! Which one is it? ").lower()
+    
+    if guess in display:
+        print(f"You already tried letter '{guess}'!")
 
-for position in range(word_length):
-    letter = chosen_word[position]
-    if letter == guess:
-        display[position] = letter
+    for position in range(word_length):
+        letter = chosen_word[position]
+        if letter == guess:
+            display[position] = letter
         
-# Print 'display' and you should see the guessed letter in the correct position and every other letter replace with "_"
-print(display)
+    if guess not in chosen_word:
+        print(f"Letter '{guess}' is not in the word!")
+        lives -= 1
+        if lives == 0:
+            end_of_game = True
+            print("You lose")
+    
+    print(f"{' '.join(display)}")
+            
+    if "_" not in display:
+        end_of_game = True
+        print("You win!")
+
+    print(stages[lives])
