@@ -62,8 +62,6 @@ def calculator():
             continue
         elif con_or_exit == 'n':
             calculator()
-        else:
-            break
-
+            
 """ main """
 calculator()
