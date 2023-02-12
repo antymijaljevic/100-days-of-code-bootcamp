@@ -114,13 +114,19 @@ def show_cards(player_cards, dealer_cards, hide):
         # get symbols
         dealer_cards_list.append(dealer[0])
         # get scores
-        dealer_score_list.append(dealer[1])
+        if dealer[1] == 11 and sum(dealer_score_list) > 10:
+             dealer_score_list.append(1)
+        else:
+            dealer_score_list.append(dealer[1])
         
     for player in player_cards:
         # get symbols
         player_cards_list.append(player[0])
         # get scores
-        player_score_list.append(player[1])
+        if player[1] == 11 and sum(player_score_list) > 10:
+             player_score_list.append(1)
+        else:
+            player_score_list.append(player[1])
     
     # hide dealer second card in a first round    
     if hide:
@@ -193,41 +199,65 @@ def main():
                     print("Wrong input ...")
             
     """ player play """
-    dealer_won = False
+    dealer_play = True
     
     while True:
-        hit_stand = input("\n'Hit' or 'Stand'? Which one is it?: ").lower()
+        print("\n#### Player's turn ####")
+        hit_stand = input("'Hit' or 'Stand'? Which one is it?: ").lower()
         if hit_stand == "hit":
             player_cards, remaining_cards = deal(deck = remaining_cards, num = 1, existing_card = player_cards)
             player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = True)
         
             if player_score == 21:
-                print("**** BlackJack ****")
+                print("**** Player got BlackJack ! ****")
                 break
             elif player_score > 21:
                 print("\nBust!")
-                dealer_won = True
+                dealer_play = False
                 break
             
         elif hit_stand == "stand":
             player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = False)
             
             if player_score < dealer_score:
-                dealer_won = True
+                dealer_play = False
                 print("Dealer wins!")
                 break
+            elif player_score > 17 and dealer_score < 18:
+                dealer_play = False
+                print("Player wins!")
+                break
             elif player_score == 21 and dealer_score == 21:
+                dealer_play = False
                 print("Draw!")
                 break
             else:
-                print("Dealer's turn ..")
                 break
         else:
             print("Wrong input ...")
             
     """ dealer play """
-    if not dealer_won:
-        print("\nDealer is playing now ...")
+    if dealer_play:
+        print("\n#### Dealer's turn ####")
+        while dealer_score <= 17:
+            dealer_cards, remaining_cards = deal(deck = remaining_cards, num = 1, existing_card = dealer_cards)
+            player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = False)
+
+        if dealer_score > 21:
+            print("Bust!\nYou win!")
+        elif dealer_score == 21 and not player_score == 21:
+            print("**** Dealer got BlackJack ! ****")
+            print("Dealer wins!")
+        elif player_score == 21 and dealer_score == 21:
+            print("**** Dealer got BlackJack ! ****")
+            print("Draw!")
+        elif dealer_score > player_score:
+            print("Dealer wins!")
+        elif dealer_score < player_score:
+            print("Player wins!")
+        else:
+            print("Push!")
+            
 
 
 if __name__ == '__main__':
