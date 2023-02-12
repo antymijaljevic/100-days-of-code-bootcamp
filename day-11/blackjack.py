@@ -157,108 +157,143 @@ def main():
     """
     
     """ clear terminal, show logo, shuffle the decks"""
+    global player_bank
+    global dealer_bank
     clear_terminal()
     print(logo)
     shuffled_cards = shuffle_decks(deck = blackjack_cards, deck_count = deck_count)
     print(f"TOTAL CARD NUMBER = {len(shuffled_cards)}, DECK NUMBER = {deck_count}")
 
-    """ ask a player for a chip amount and reject incorrect input """    
-    while True:
-        print(f"\nPLAYER CHIP STACK = {player_bank}")
-        player_chip = input("What is your chip choice? '1', '5', '25', '50', '100', '500', '1000', 'YOLO'?  > ").lower()
-        if player_chip in chips:
-            money_on_table = set_bet(player_chip)
-            break
-        elif not player_chip:
-            print("Only offered values please!")
-        else:
-            print(f"{player_chip.upper()} isn't in the offer ...")    
-    
-    """ deal two cards for each """
-    dealer_cards, remaining_cards = deal(deck = shuffled_cards, num = 2)
-    player_cards, remaining_cards = deal(deck = remaining_cards, num = 2)
-    
-    """ show cards and scores for both """
-    player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = True)
-    
-    """ game monitor for the visiblity """
-    game_monitor(cards = remaining_cards, table_money = money_on_table)   
-    
-    """ double X2 logic """
-    if player_chip != "yolo":
-        if player_bank >= int(player_chip):
-            while True:
-                double = input("\nDouble X2? 'yes' or 'enter' to continue: ").lower()
-                if double == "yes":
-                    money_on_table = set_bet(player_chip, money_on_table)
-                    game_monitor(cards = remaining_cards, table_money = money_on_table)
+    """ play the game until one of player goes broke """
+    while not player_bank == 0:
+        """ ask a player for a chip amount and reject incorrect input """    
+        while True:
+            print(f"\nPLAYER CHIP STACK = {player_bank}")
+            player_chip = input("What is your chip choice? '1', '5', '25', '50', '100', '500', '1000', 'YOLO'?  > ").lower()
+            if player_chip in chips:
+                money_on_table = set_bet(player_chip)
+                break
+            elif not player_chip:
+                print("Only offered values please!")
+            else:
+                print(f"{player_chip.upper()} isn't in the offer ...")    
+        
+        """ deal two cards for each """
+        dealer_cards, remaining_cards = deal(deck = shuffled_cards, num = 2)
+        player_cards, remaining_cards = deal(deck = remaining_cards, num = 2)
+        
+        """ show cards and scores for both """
+        player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = True)
+        
+        """ game monitor for the visiblity """
+        game_monitor(cards = remaining_cards, table_money = money_on_table)   
+        
+        """ double X2 logic """
+        if player_chip != "yolo":
+            if player_bank >= int(player_chip):
+                while True:
+                    double = input("\nDouble X2? 'yes' or 'enter' to continue: ").lower()
+                    if double == "yes":
+                        money_on_table = set_bet(player_chip, money_on_table)
+                        game_monitor(cards = remaining_cards, table_money = money_on_table)
+                        break
+                    elif not double:
+                        break
+                    else:
+                        print("Wrong input ...")
+                
+        """ player play """
+        dealer_play = True
+        
+        while True:
+            print("\n#### Player's turn ####")
+            hit_stand = input("'Hit' or 'Stand'? Which one is it?: ").lower()
+            if hit_stand == "hit":
+                player_cards, remaining_cards = deal(deck = remaining_cards, num = 1, existing_card = player_cards)
+                player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = True)
+            
+                if player_score == 21:
+                    print("**** Player got BlackJack ! ****")
                     break
-                elif not double:
+                elif player_score > 21:
+                    print("\nBust!")
+                    dealer_play = False
+                    dealer_bank += money_on_table
+                    money_on_table = 0
+                    break
+                
+            elif hit_stand == "stand":
+                player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = False)
+                
+                if player_score < dealer_score:
+                    dealer_play = False
+                    dealer_bank += money_on_table
+                    money_on_table = 0
+                    print("Dealer wins!")
+                    break
+                elif player_score > 17 and dealer_score < 18:
+                    dealer_play = False
+                    player_bank += money_on_table
+                    money_on_table = 0
+                    print("Player wins!")
+                    break
+                elif player_score == 21 and dealer_score == 21:
+                    dealer_play = False
+                    dealer_bank += (money_on_table / 2)
+                    player_bank += (money_on_table / 2)
+                    money_on_table = 0
+                    print("Draw!")
                     break
                 else:
-                    print("Wrong input ...")
-            
-    """ player play """
-    dealer_play = True
-    
-    while True:
-        print("\n#### Player's turn ####")
-        hit_stand = input("'Hit' or 'Stand'? Which one is it?: ").lower()
-        if hit_stand == "hit":
-            player_cards, remaining_cards = deal(deck = remaining_cards, num = 1, existing_card = player_cards)
-            player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = True)
-        
-            if player_score == 21:
-                print("**** Player got BlackJack ! ****")
-                break
-            elif player_score > 21:
-                print("\nBust!")
-                dealer_play = False
-                break
-            
-        elif hit_stand == "stand":
-            player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = False)
-            
-            if player_score < dealer_score:
-                dealer_play = False
-                print("Dealer wins!")
-                break
-            elif player_score > 17 and dealer_score < 18:
-                dealer_play = False
-                print("Player wins!")
-                break
-            elif player_score == 21 and dealer_score == 21:
-                dealer_play = False
-                print("Draw!")
-                break
+                    break
             else:
-                break
-        else:
-            print("Wrong input ...")
-            
-    """ dealer play """
-    if dealer_play:
-        print("\n#### Dealer's turn ####")
-        while dealer_score <= 17:
-            dealer_cards, remaining_cards = deal(deck = remaining_cards, num = 1, existing_card = dealer_cards)
-            player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = False)
+                print("Wrong input ...")
+                
+        """ dealer play """
+        if dealer_play:
+            print("\n#### Dealer's turn ####")
+            while dealer_score <= 17:
+                dealer_cards, remaining_cards = deal(deck = remaining_cards, num = 1, existing_card = dealer_cards)
+                player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = False)
 
-        if dealer_score > 21:
-            print("Bust!\nYou win!")
-        elif dealer_score == 21 and not player_score == 21:
-            print("**** Dealer got BlackJack ! ****")
-            print("Dealer wins!")
-        elif player_score == 21 and dealer_score == 21:
-            print("**** Dealer got BlackJack ! ****")
-            print("Draw!")
-        elif dealer_score > player_score:
-            print("Dealer wins!")
-        elif dealer_score < player_score:
-            print("Player wins!")
-        else:
-            print("Push!")
-            
-
+            if dealer_score > 21:
+                print("Bust!\nYou win!")
+                player_bank += money_on_table
+                money_on_table = 0
+            elif dealer_score == 21 and not player_score == 21:
+                print("**** Dealer got BlackJack ! ****")
+                dealer_bank += money_on_table
+                money_on_table = 0
+                print("Dealer wins!")
+            elif player_score == 21 and dealer_score == 21:
+                print("**** Dealer got BlackJack ! ****")
+                dealer_bank += (money_on_table / 2)
+                player_bank += (money_on_table / 2)
+                money_on_table = 0
+                print("Draw!")
+            elif dealer_score > player_score:
+                dealer_bank += money_on_table
+                money_on_table = 0
+                print("Dealer wins!")
+            elif dealer_score < player_score:
+                player_bank += money_on_table
+                money_on_table = 0
+                print("Player wins!")
+            else:
+                dealer_bank += (money_on_table / 2)
+                player_bank += (money_on_table / 2)
+                money_on_table = 0
+                print("Push!")
+                
+        """ no cards left """
+        if len(remaining_cards) < 4:
+            if player_bank > dealer_bank:
+                    print(f"\n############### THE DECK WENT OUT OF CARDS ###################") 
+                    print("YOU WIN")
+                
+    """ game over logic """
+    print(f"\n############### GAME OVER ###################") 
+    print("HOUSE WINS")
 
 if __name__ == '__main__':
     main()
