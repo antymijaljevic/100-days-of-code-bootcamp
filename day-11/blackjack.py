@@ -29,7 +29,7 @@ dealer_bank = 1000
 deck_count = 2
 
 """ possible chips """
-chips = ['1', '5', '25', '50', '100', 'yolo']
+chips = ['1', '5', '25', '50', '100', '500', '1000', 'yolo']
 
 def clear_terminal():
     """ 
@@ -49,7 +49,7 @@ def shuffle_decks(deck, deck_count):
     
     return the_deck
 
-def set_bet(chip):
+def set_bet(chip, existing_bet = False):
     """ 
         deduct values based on the choice
     """
@@ -63,7 +63,11 @@ def set_bet(chip):
         chip = int(chip)
         player_bank -= chip
         dealer_bank -= chip
-        bets += (chip * 2)
+        if existing_bet:
+            existing_bet += (chip * 2)
+            bets = existing_bet
+        else:
+            bets += (chip * 2)
     else:
         bets += (player_bank + dealer_bank)
         player_bank, dealer_bank = 0, 0
@@ -79,69 +83,67 @@ def game_monitor(cards, table_money):
           f"PLAYER BANK = {player_bank}\n" + 
           f"BET = {table_money}")
     
-def cards_on_table(p_cards, d_cards, hide):
+def deal(deck, num, existing_card = False):
     """
-        shows cards on the table
+        recieves decks, picks a random card,
+        returns the card and the remaining cards in the deck
     """
-    player_cards = []
-    dealer_cards = []
+    if existing_card:
+        cards = existing_card
+    else:
+        cards = []
+        
+    for _ in range(0, num):
+        random_card = choice(deck)
+        cards.append(random_card)
+        deck.remove(random_card)
     
-    for p, d in zip(p_cards, d_cards):
+    return cards, deck
+  
+def show_cards(player_cards, dealer_cards, hide):
+    """
+        shows cards on the table for both
+    """
+    dealer_cards_list = []
+    player_cards_list = []
+    
+    dealer_score_list = []
+    player_score_list = []
+    
+    for dealer in dealer_cards:
         # get symbols
-        player_cards.append(p[0])
-        dealer_cards.append(d[0])
+        dealer_cards_list.append(dealer[0])
+        # get scores
+        dealer_score_list.append(dealer[1])
         
+    for player in player_cards:
+        # get symbols
+        player_cards_list.append(player[0])
+        # get scores
+        player_score_list.append(player[1])
+    
+    # hide dealer second card in a first round    
     if hide:
-        dealer_cards[1] = "*"
+        dealer_cards_list[1] = "*"
     
+    # show cards
     print(f"\nTABLE:\n" +
-        f"DEALER CARDS = {dealer_cards}\n" +
-        f"PLAYER CARDS = {player_cards}")
-
-def current_score(p_cards, d_cards, hide):
-    """
-        keeps scores track
-    """
-    player_score = []
-    dealer_score = []
+        f"DEALER CARDS = {dealer_cards_list}\n" +
+        f"PLAYER CARDS = {player_cards_list}")
     
-    for p, d in zip(p_cards, d_cards): 
-        # get score
-        player_score.append(p[1])
-        dealer_score.append(d[1])
-        
     # show scores
     if hide:
-        print(f"DEALER SCORE = {dealer_score[0]}")
-        dealer_score = sum(dealer_score)
+        # hide dealer's second card score
+        print(f"DEALER SCORE = {dealer_score_list[0]}")
+        dealer_score_list = sum(dealer_score_list)
     else:
-        dealer_score = sum(dealer_score)
-        print(f"DEALER SCORE = {dealer_score}")
+        dealer_score_list = sum(dealer_score_list)
+        print(f"DEALER SCORE = {dealer_score_list}")
         
-    player_score = sum(player_score)
-    print(f"PLAYER SCORE = {player_score}")
+    player_score_list = sum(player_score_list)
+    print(f"PLAYER SCORE = {player_score_list}")
 
-    return player_score, dealer_score
-        
-def cards_deal(cards, num):
-    """
-        deal player 2 cards and dealer 2 cards (1 one card face down)
-    """
-    player_cards = []
-    dealer_cards = []
-    
-    for card in range(0, num):
-        # deal cards for player
-        random_card = choice(cards)
-        player_cards.append(random_card)
-        cards.remove(random_card)
-        
-        # deal cards for dealer
-        random_card = choice(cards)
-        dealer_cards.append(random_card)
-        cards.remove(random_card)
-        
-    return player_cards, dealer_cards, cards
+    return player_score_list, dealer_score_list
 
 def main():
     """
@@ -156,54 +158,76 @@ def main():
 
     """ ask a player for a chip amount and reject incorrect input """    
     while True:
-        print(f"\nPLAYER CASH = {player_bank}")
-        player_chip = input("What is your chip choice? '1', '5', '25', '50', '100', 'YOLO'?  > ").lower()
+        print(f"\nPLAYER CHIP STACK = {player_bank}")
+        player_chip = input("What is your chip choice? '1', '5', '25', '50', '100', '500', '1000', 'YOLO'?  > ").lower()
         if player_chip in chips:
             money_on_table = set_bet(player_chip)
             break
         elif not player_chip:
             print("Only offered values please!")
         else:
-            print(f"{player_chip.upper()} isn't in the offer ...")
-
-    """ deal the cards """
-    player_cards, dealer_cards, remaining_cards = cards_deal(shuffled_cards, 2)
+            print(f"{player_chip.upper()} isn't in the offer ...")    
+    
+    """ deal two cards for each """
+    dealer_cards, remaining_cards = deal(deck = shuffled_cards, num = 2)
+    player_cards, remaining_cards = deal(deck = remaining_cards, num = 2)
+    
+    """ show cards and scores for both """
+    player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = True)
     
     """ game monitor for the visiblity """
-    game_monitor(cards = shuffled_cards, table_money = money_on_table)
+    game_monitor(cards = remaining_cards, table_money = money_on_table)   
     
-    """ show cards on the table """
-    cards_on_table(p_cards = player_cards, d_cards = dealer_cards, hide = True)
-    
-    """ show scores """
-    player_score, dealer_score = current_score(p_cards = player_cards, d_cards = dealer_cards, hide = True)
-    
-    """ double logic """
-    while True:
-        double = input("\nDouble X2? 'yes' or 'enter' to continue: ").lower()
-        if double == "yes":
-            # double function
-            break
-        elif not double:
-            break
-        else:
-            print("Wrong choice, choose again ...")
+    """ double X2 logic """
+    if player_chip != "yolo":
+        if player_bank >= int(player_chip):
+            while True:
+                double = input("\nDouble X2? 'yes' or 'enter' to continue: ").lower()
+                if double == "yes":
+                    money_on_table = set_bet(player_chip, money_on_table)
+                    game_monitor(cards = remaining_cards, table_money = money_on_table)
+                    break
+                elif not double:
+                    break
+                else:
+                    print("Wrong input ...")
             
-    """ a player choose """
+    """ player play """
+    dealer_won = False
+    
     while True:
         hit_stand = input("\n'Hit' or 'Stand'? Which one is it?: ").lower()
-    
         if hit_stand == "hit":
-            player_cards += cards_deal(remaining_cards, 1)[0]
-            print(player_cards)
+            player_cards, remaining_cards = deal(deck = remaining_cards, num = 1, existing_card = player_cards)
+            player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = True)
+        
+            if player_score == 21:
+                print("**** BlackJack ****")
+                break
+            elif player_score > 21:
+                print("\nBust!")
+                dealer_won = True
+                break
             
-            break
         elif hit_stand == "stand":
-            pass
-            break
+            player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = False)
+            
+            if player_score < dealer_score:
+                dealer_won = True
+                print("Dealer wins!")
+                break
+            elif player_score == 21 and dealer_score == 21:
+                print("Draw!")
+                break
+            else:
+                print("Dealer's turn ..")
+                break
         else:
-            print("Wrong choice, choose again ...")
-    
+            print("Wrong input ...")
+            
+    """ dealer play """
+    if not dealer_won:
+        print("\nDealer is playing now ...")
 
 
 if __name__ == '__main__':
