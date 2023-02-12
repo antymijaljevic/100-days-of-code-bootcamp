@@ -69,8 +69,10 @@ def set_bet(chip, existing_bet = False):
         else:
             bets += (chip * 2)
     else:
-        bets += (player_bank + dealer_bank)
-        player_bank, dealer_bank = 0, 0
+        bets += (player_bank * 2)
+        dealer_bank -= player_bank
+        player_bank = 0
+        
         
     return bets
 
@@ -81,6 +83,7 @@ def game_monitor(cards, table_money):
     print("\nGAME MONITOR:\n" + 
           f"REMAINING CARDS = {len(cards)}\n" + 
           f"PLAYER BANK = {player_bank}\n" + 
+          f"HOUSE BANK = {dealer_bank}\n" + 
           f"BET = {table_money}")
     
 def deal(deck, num, existing_card = False):
@@ -151,14 +154,30 @@ def show_cards(player_cards, dealer_cards, hide):
 
     return player_score_list, dealer_score_list
 
+def money_flow(money, action):
+    """ 
+        winner takes money 
+    """
+    global player_bank
+    global dealer_bank
+    
+    if action == "player":
+        print("Player wins!")
+        player_bank += money
+    elif action == "dealer":
+        dealer_bank += money
+        print("Dealer wins!")
+    else:
+        dealer_bank += (money / 2)
+        player_bank += (money / 2)
+        print("Draw!")
+    
 def main():
     """
         main game logic
     """
     
     """ clear terminal, show logo, shuffle the decks"""
-    global player_bank
-    global dealer_bank
     clear_terminal()
     print(logo)
     shuffled_cards = shuffle_decks(deck = blackjack_cards, deck_count = deck_count)
@@ -218,8 +237,7 @@ def main():
                 elif player_score > 21:
                     print("\nBust!")
                     dealer_play = False
-                    dealer_bank += money_on_table
-                    money_on_table = 0
+                    money_flow(money_on_table, "dealer")
                     break
                 
             elif hit_stand == "stand":
@@ -227,22 +245,15 @@ def main():
                 
                 if player_score < dealer_score:
                     dealer_play = False
-                    dealer_bank += money_on_table
-                    money_on_table = 0
-                    print("Dealer wins!")
+                    money_flow(money_on_table, "dealer")
                     break
                 elif player_score > 17 and dealer_score < 18:
                     dealer_play = False
-                    player_bank += money_on_table
-                    money_on_table = 0
-                    print("Player wins!")
+                    money_flow(money_on_table, "player")
                     break
                 elif player_score == 21 and dealer_score == 21:
                     dealer_play = False
-                    dealer_bank += (money_on_table / 2)
-                    player_bank += (money_on_table / 2)
-                    money_on_table = 0
-                    print("Draw!")
+                    money_flow(money_on_table, "draw")
                     break
                 else:
                     break
@@ -257,33 +268,20 @@ def main():
                 player_score, dealer_score = show_cards(dealer_cards = dealer_cards, player_cards = player_cards, hide = False)
 
             if dealer_score > 21:
-                print("Bust!\nYou win!")
-                player_bank += money_on_table
-                money_on_table = 0
+                print("Bust!")
+                money_flow(money_on_table, "player")
             elif dealer_score == 21 and not player_score == 21:
                 print("**** Dealer got BlackJack ! ****")
-                dealer_bank += money_on_table
-                money_on_table = 0
-                print("Dealer wins!")
+                money_flow(money_on_table, "dealer")
             elif player_score == 21 and dealer_score == 21:
                 print("**** Dealer got BlackJack ! ****")
-                dealer_bank += (money_on_table / 2)
-                player_bank += (money_on_table / 2)
-                money_on_table = 0
-                print("Draw!")
+                money_flow(money_on_table, "draw")
             elif dealer_score > player_score:
-                dealer_bank += money_on_table
-                money_on_table = 0
-                print("Dealer wins!")
+                money_flow(money_on_table, "dealer")
             elif dealer_score < player_score:
-                player_bank += money_on_table
-                money_on_table = 0
-                print("Player wins!")
+                money_flow(money_on_table, "player")
             else:
-                dealer_bank += (money_on_table / 2)
-                player_bank += (money_on_table / 2)
-                money_on_table = 0
-                print("Push!")
+                money_flow(money_on_table, "draw")
                 
         """ no cards left """
         if len(remaining_cards) < 4:
