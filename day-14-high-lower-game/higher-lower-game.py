@@ -1,9 +1,7 @@
 from game_data import data
 from art import logo, vs
 from os import name, system
-from random import shuffle
-
-
+from random import choice
 
 def clear_terminal():
     """ 
@@ -13,54 +11,67 @@ def clear_terminal():
         system('cls')
     else:
         system('clear')
+        
+def format_item(item):
+    """
+        receives item from data and returns it formated
+    """
+    account_name = item['name']
+    account_des  = item['description']
+    account_country = item['country']
+    
+    return f"{account_name}, {account_des}, from {account_country}"
 
+def compare(guess, a_followers, b_followers):
+    if a_followers > b_followers:
+        return guess == 'a'
+    else:
+        return guess == 'b'
 
 def main():    
     """
         main
     """
-    """ set score """
-    score = 0
-    shuffle(data)
     
-    for celebrity in data:
-        """ data logic """
-        if celebrity['name'] == 'Instagram':
-            a = f"{celebrity['name']}, {celebrity['description']}, from {celebrity['country']}."
-            a_count = celebrity['follower_count']
-            continue
+    """ clear terminal and show logo """
+    clear_terminal()
+    print(logo)
+    
+    score = 0
+    account_b = choice(data)
+    
+    while True:        
+        """ random data """
+        account_a = account_b
+        while account_a == account_b:
+            account_b = choice(data)
         
-        b = f"{celebrity['name']}, {celebrity['description']}, from {celebrity['country']}."
-        b_count = celebrity['follower_count']
-            
-        """ show comparence """
-        print(logo)
-        print(f"Compare A: {a}")
+        """ vs section """
+        print(f"Compare A: {format_item(account_a)}")
         print(vs)
-        print(f"Compare B: {b}")
+        print(f"Compare B: {format_item(account_b)}")
         
         
         """ ask player and compare followers """
         player_input = input("\nWho has more followers? Type 'A' or 'B': ").lower()
+        
+        """ followers """
+        a_followers = account_a['follower_count']
+        b_followers = account_b['follower_count']
+        
+        """ compare """
+        is_correct = compare(player_input, a_followers, b_followers)
+        
+        """ clear terminal and show logo """
         clear_terminal()
-        if player_input == 'a':
-            if a_count > b_count:
-                a = b
-                a_count = b_count
-                score += 1
-                print(f"\nYou're right. Current score: {score}")
-            else:
-                print(f"\nSorry that's wrong. Final score: {score}")
-                break
+        print(logo)
+        
+        if is_correct:
+            score += 1
+            print(f"You're right. Current score: {score}")
         else:
-            if b > a:
-                a = b
-                a_count = b_count
-                score += 1
-                print(f"\nYou're right. Current score: {score}")
-            else:
-                print(f"\nSorry that's wrong. Final score: {score}")
-                break
-
+            print(f"Sorry that's wrong. Final score: {score}")
+            break
+            
 if __name__ == "__main__":
     main()
