@@ -2,7 +2,6 @@ from data import *
 from os import name, system
 
 
-
 def clear_terminal():
     """ 
         clears screen depends on a OS type
@@ -52,11 +51,10 @@ def deduct_resources(coffee_res):
     global resources
     
     resources["money"] += coffee_res["cost"]
+    
     for key, value in coffee_res["ingredients"].items():
-        print(key, value)
         if key == "water":
             resources[key] -= value
-            print(resources[key])
         elif key == "coffee":
             resources[key] -= value
         elif key == "milk":
@@ -69,6 +67,8 @@ def check_money(quarters, dimes, nickel, penny, money_needed):
     """
         receives types of coins sum them up and returns change
     """
+    global resources
+    
     quarters_total = quarters * coin_types["quarters"]
     dimes_total = dimes * coin_types["dimes"]
     nickel_total = nickel * coin_types["nickel"]
@@ -83,6 +83,7 @@ def check_money(quarters, dimes, nickel, penny, money_needed):
             return True
     else:
         print("\nSorry that's not enough money. Money refunded.")
+        resources["money"] -= money_needed
         return False
     
 def main():
@@ -120,9 +121,6 @@ def main():
         change = check_money(quarters=quarters, dimes=dimes, nickel=nickel, penny=penny, money_needed=MENU[buyer_input]['cost'])
         if not change:
             continue
-        
-        """ deduct resources """
-        deduct_resources(MENU[buyer_input])
         
         """ give the drink to a customer """
         print("\n")
