@@ -59,7 +59,27 @@ tim = Turtle()
 #     tim.setheading(choice(directions))
     
     
-> 172   
+# Draw a Spirograph
+def random_color():
+    r = randint(0, 255)
+    g = randint(0, 255)
+    b = randint(0, 255)
+    
+    return (r, g, b)
+
+t.colormode(255)
+tim.speed("fastest")
+
+
+def draw_spirograph(size_of_gap):
+    for _ in range(int(360 / size_of_gap)):
+        rand_color = random_color()
+        tim.color(rand_color)
+        tim.circle(100)
+        tim.setheading(tim.heading() + size_of_gap)
+
+   
+draw_spirograph(5)   
     
 screen = Screen()
 screen.exitonclick()
