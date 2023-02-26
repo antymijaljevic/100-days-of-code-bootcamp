@@ -33,6 +33,7 @@ class Art:
         # turtle basic settings
         turtle.colormode(255)
         self.tim.speed("fastest")
+        self.tim.hideturtle()
         
     def draw_dot_line(self):
         """ draws a line of 10 dots """
