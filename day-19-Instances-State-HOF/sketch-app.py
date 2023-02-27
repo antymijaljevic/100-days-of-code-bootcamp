@@ -16,7 +16,7 @@ class SketchApp:
         
     def counter_clockwise(self):
         self.tim.setheading(self.clock)
-        self.clock += 5  
+        self.clock += 5
         
     def clockwise(self):
         self.tim.setheading(self.clock)
