@@ -1,5 +1,5 @@
 from turtle import Turtle, Screen
-from pandas import read_csv
+from pandas import read_csv, DataFrame
 
 """ setup screen """
 screen = Screen()
@@ -26,6 +26,17 @@ while len(correct_guesses) < len(all_states):
 
     """ to exit game """
     if answer_state == "Exit":
+        """ show missing states """
+        missing_states = []
+        for state in all_states:
+            if state not in correct_guesses:
+                missing_states.append(state)
+        
+        # print(missing_states)
+        """ create a new csv with missing states """
+        new_data = DataFrame(missing_states)
+        new_data.to_csv("states-to-learn.csv")
+        
         break
 
     """ put state name into belonging state area"""
